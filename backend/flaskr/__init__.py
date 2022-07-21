@@ -6,6 +6,8 @@ import random
 
 from models import setup_db, Question, Category
 
+db = SQLAlchemy()
+
 QUESTIONS_PER_PAGE = 10
 def paginate_questions(request, selection):
     page = request.args.get('page', 1, type=int)
@@ -53,6 +55,7 @@ def create_app(test_config=None):
         selection = Question.query.order_by(Question.id).all()
         current_questions = paginate_questions(request, selection)
         categories = Category.query.order_by(Category.id).all()
+        # print(selection)
 
         if len(current_questions) == 0:
             abort(404)
@@ -62,7 +65,7 @@ def create_app(test_config=None):
             'questions': current_questions,
             'total_questions': len(Question.query.all()),
             'categories': {category.id: category.type for category in categories},
-            'currentCategory': None
+            'currentCategory': {question.category: question.id  for question in selection}
         })
 
    
@@ -108,7 +111,7 @@ def create_app(test_config=None):
                 return jsonify({
                     'success': True,
                     'questions': current_questions,
-                    'current_category': None
+                    'current_category': {question.category: question.id  for question in selection}
                 })
 
             else:
