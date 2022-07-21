@@ -26,9 +26,10 @@ def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__)
     setup_db(app)
-
+    # CORS(app)
     CORS(app, resources={"/": {"origins": "*"}})
 
+    # CORS Headers
     @app.after_request
     def after_request(response):
         response.headers.add(
@@ -39,23 +40,34 @@ def create_app(test_config=None):
             'GET, POST, PATCH, DELETE, OPTIONS')
         return response
 
+    # handle GET requests for all available categories
     @app.route('/categories')
-    def get_categories():
+    def get_all_categories():
+        # get all categories
         categories = Category.query.order_by(Category.type).all()
 
+        #  checking if categories where gotten in other to avoid errors
         if len(categories) == 0:
             abort(404)
 
         return jsonify({'success': True, 'categories': {
                        category.id: category.type for category in categories}})
 
-    @app.route('/questions')
-    def get_questions():
-        selection = Question.query.order_by(Question.id).all()
-        current_questions = paginate_questions(request, selection)
-        categories = Category.query.order_by(Category.id).all()
-        # print(selection)
+    # GET requests for questions including pagination (every 10 questions).
+    # This endpoint returns a list of questions, number of total questions,
+    # current category, categories.
 
+    @app.route('/questions')
+    def get_all_questions():
+
+        # get all questions
+        selection = Question.query.order_by(Question.id).all()
+        # getting current categories
+        current_questions = paginate_questions(request, selection)
+        # getting all categories
+        categories = Category.query.order_by(Category.id).all()
+
+        # checking for currentquestions in order to avaid errors
         if len(current_questions) == 0:
             abort(404)
 
@@ -67,15 +79,18 @@ def create_app(test_config=None):
             'currentCategory': {question.category: question.id for question in selection}
         })
 
+    # DELETE question using a question ID.
+
     @app.route('/questions/<int:question_id>', methods=['DELETE'])
     def delete_question(question_id):
         try:
+            # get specific question to be deleted
             question = Question.query.filter(
                 Question.id == question_id).one_or_none()
-
+            # checking if question exists in other to avaoid errors
             if question is None:
                 abort(404)
-
+            # if question exists we call the delete method to delete
             question.delete()
             selection = Question.query.order_by(Question.id).all()
             current_questions = paginate_questions(request, selection)
@@ -89,16 +104,21 @@ def create_app(test_config=None):
         except BaseException:
             abort(422)
 
+    # POST a new question, or search for a question which will require the
+    # question and answer text, category,difficulty score, and searchTerm.
+
     @app.route('/questions', methods=['POST'])
     def create_question():
+        # loading jsons
         body = request.get_json()
-
+        # getting the body of the json object
         new_question = body.get('question', None)
         new_answer = body.get('answer', None)
         new_category = body.get('category', None)
         new_difficulty = body.get('difficulty', None)
         search = body.get('searchTerm', None)
         try:
+            # checking if search exists
             if search is not None:
                 selection = Question.query.order_by(
                     Question.id).filter(
@@ -111,7 +131,8 @@ def create_app(test_config=None):
                     'questions': current_questions,
                     'current_category': {question.category: question.id for question in selection}
                 })
-
+            # if search doesntg exist we create a new question from the body
+            # provided
             else:
                 question = Question(
                     question=new_question,
@@ -119,7 +140,7 @@ def create_app(test_config=None):
                     category=new_category,
                     difficulty=new_difficulty)
                 question.insert()
-
+                # get all questions
                 selection = Question.query.order_by(Question.id).all()
                 current_questions = paginate_questions(request, selection)
 
@@ -131,13 +152,16 @@ def create_app(test_config=None):
                 })
         except BaseException:
             abort(422)
+    # GET question based on categories
 
     @app.route('/categories/<int:category_id>/questions', methods=['GET'])
     def get_specific_question(category_id):
         try:
+            # quering the database for the specific category id
             questions = Question.query.filter(
                 Question.category == str(category_id)).all()
-
+            # checking if question exist in that category in other to avoid
+            # errors
             if questions is None:
                 abort(404)
             return jsonify({
@@ -148,10 +172,15 @@ def create_app(test_config=None):
             })
         except BaseException:
             abort(404)
+    # POST endpoint to get questions to play the quiz, This endpoint takes
+    # category and previous question parameters and returns a random question
+    # within the given category if provided, and that is not one of the
+    # previous questions.
 
     @app.route('/quizzes', methods=['POST'])
-    def quiz():
+    def play_quiz():
         try:
+            # get the qestion category an the previous question
             body = request.get_json()
 
             category = body.get('quiz_category', None)
@@ -214,4 +243,4 @@ def create_app(test_config=None):
             'error': 500,
             'message': 'Internal error, Wait a while and try again later'
         })
-    return app
+    return
