@@ -49,7 +49,8 @@ By making notes ahead of time, you will practice the core skill of being able to
 > View the [Frontend README](./frontend/README.md) for more details.
 
 
-Trivia API
+# Trivia API
+
 Udacity is invested in creating bonding experiences for its employees and students. A bunch of team members got the idea to hold trivia on a regular basis and created a webpage to manage the trivia app and play the game, but their API experience is limited and still needs to be built out.
 
 That's where you come in! Help them finish the trivia app so they can start holding trivia and seeing who's the most knowledgeable of the bunch. The application must:
@@ -64,68 +65,103 @@ That's where you come in! Help them finish the trivia app so they can start hold
 
 5- Play the quiz game, randomizing either all questions or within a specific category.
 
-Getting Started
-Pre-requisites and Local Development
+## Getting Started 
+
+### Pre-requisites and Local Development
+
 Developers using this project should already have:
 
-Python3
-Pip
-node
-Backend
-inside the backend folder initialize and activate a virtualenv
+- Python3 
+- Pip 
+- node 
 
+#### Backend 
+
+inside the backend folder initialize and activate a virtualenv
+```
 python -m virtualenv env
 source env/bin/activate
-Note - In Windows, the env does not have a bin directory. Therefore, you'd use the analogous command shown below:
-
+```
+>**Note** - In Windows, the `env` does not have a `bin` directory. Therefore, you'd use the analogous command shown below:
+```
 source env/Scripts/activate
-then run pip install requirements.txt All required packages are included in the requirements file.
+```
+
+then run ``` pip install requirements.txt``` All required packages are included in the requirements file.
+
 
 To run the application run the following commands:
 
+```
 export FLASK_APP=flaskr
 export FLASK_ENV=development
 flask run
-The application is run on http://127.0.0.1:5000/ by default and is a proxy in the frontend configuration.
+```
+The application is run on  ``` http://127.0.0.1:5000/``` by default and is a proxy in the frontend configuration.
 
-Frontend
+
+
+#### Frontend
+
 This project uses NPM to manage software dependencies. NPM Relies on the package.json file located in the frontend directory of this repository. After cloning, open your terminal and run:
 
+```
 $ npm install
+```
 The frontend app was built using create-react-app. In order to run the app in development mode use npm start. You can change the script in the package.json file.
 
+```
 $ npm start
+```
 Open http://localhost:3000 to view it in the browser. The page will reload if you make edits.
 
-Tests
+
+#### Tests
+
 To run the tests, run
 
+```
 dropdb trivia_test
 createdb trivia_test
 psql trivia_test < trivia.psql
 python test_flaskr.py
-API Reference
-Error Handling
+```
+
+
+## API Reference
+
+### Error Handling
+
 Errors are returned as JSON objects in the following format:
 
+```
 {
     "success": False, 
     "error": 400,
     "message": "bad request"
 }
+```
+
 The API will return three error types when requests fail:
 
-400: Bad Request 404: Resource Not Found 422: Not Processable 500: Internal Server Error 405: Method Not Allowed
+400: Bad Request
+404: Resource Not Found
+422: Not Processable
+500: Internal Server Error
+405: Method Not Allowed
 
-Endpoints
-GET /categories
+### Endpoints
+
+
+**GET /categories**
 
 General:
+- Returns a list of categories, success value
+- Results are paginated in groups of 10. Include a request argument to choose page number, starting from 1.
 
-Returns a list of categories, success value
-Results are paginated in groups of 10. Include a request argument to choose page number, starting from 1.
-Sample: curl http://127.0.0.1:5000/categories
+Sample: ```curl http://127.0.0.1:5000/categories```
 
+```
 {
   "categories": {
     "1": "Science", 
@@ -137,23 +173,32 @@ Sample: curl http://127.0.0.1:5000/categories
   }, 
   "success": true
 }
-DELETE /questions/{id}
+```
+
+**DELETE /questions/{id}**
 
 General:
+- Deletes the question of the given ID if it exists. Returns success value.
 
-Deletes the question of the given ID if it exists. Returns success value.
-Sample curl -X DELETE http://127.0.0.1:5000/questions/16?page=2
+Sample ```curl -X DELETE http://127.0.0.1:5000/questions/16?page=2 ```
 
+
+```
 {
   "success": true
 }
-POST /questions/{id}
+```
+
+**POST /questions/{id}**
+
 
 General:
+- Creates a new question using the submitted title, answer, category and difficulty. Returns the id of the created question id, success value, total questions number, and questions list based on current page number to update the frontend
 
-Creates a new question using the submitted title, answer, category and difficulty. Returns the id of the created question id, success value, total questions number, and questions list based on current page number to update the frontend
-Sample: curl http://127.0.0.1:5000/questions -X POST -H "Content-Type: application/json" -d '{"question":"What was the name of the first man-made satellite launched by the Soviet Union in 1957?", "answer": "Sputnik 1","category" :"1", "difficulty":"2"}'
+Sample: ```curl http://127.0.0.1:5000/questions -X POST -H "Content-Type: application/json" -d '{"question":"What was the name of the first man-made satellite launched by the Soviet Union in 1957?", "answer": "Sputnik 1","category" :"1", "difficulty":"2"}'```
 
+
+```
 {
   "created": 68, 
   "questions": [
@@ -231,13 +276,19 @@ Sample: curl http://127.0.0.1:5000/questions -X POST -H "Content-Type: applicati
   "success": true, 
   "total_questions": 61
 }
-POST /search
+```
+
+
+**POST /questions**
+
 
 General:
+- search for a question using the submitted search term. Returns the results, success value, total questions.
 
-search for a question using the submitted search term. Returns the results, success value, total questions.
-Sample curl http://127.0.0.1:5000/questions -X POST -H "Content-Type: application/json" -d '{"searchTerm":"who"}'
 
+Sample ```curl http://127.0.0.1:5000/search -X POST -H "Content-Type: application/json" -d '{"searchTerm":"who"}'```
+
+```
 {
   "questions": [
     {
@@ -265,14 +316,20 @@ Sample curl http://127.0.0.1:5000/questions -X POST -H "Content-Type: applicatio
   "success": true, 
   "total_questions": 3
 }
-GET /categories/{id}/questions
+```
+
+**GET /categories/{id}/questions**
+
 
 General:
 
-Returns a list of questions, in the given category, category total_questions and success value
-Results are paginated in groups of 10. Include a request argument to choose page number, starting from 1.
-Sample: curl http://127.0.0.1:5000/categories/3/questions
+- Returns a list of questions, in the given category, category total_questions and success value
+- Results are paginated in groups of 10. Include a request argument to choose page number, starting from 1.
 
+
+Sample: ```curl http://127.0.0.1:5000/categories/3/questions```
+
+```
 {
   "current_category": "Geography", 
   "questions": [
@@ -301,14 +358,19 @@ Sample: curl http://127.0.0.1:5000/categories/3/questions
   "success": true, 
   "total_questions": 3
 }
-POST /quizzes
+```
+
+**POST /quizzes**
 
 General:
+- recive the actual question and the category
+- return the next question in the same category and success value.
 
-recive the actual question and the category
-return the next question in the same category and success value.
-Sample curl http://127.0.0.1:5000/quizzes -X POST -H "Content-Type: application/json" -d '{"quiz_category":{"type":"Geography","id":"3"}, "previous_questions":[13]}'
 
+Sample``` curl http://127.0.0.1:5000/quizzes -X POST -H "Content-Type: application/json" -d '{"quiz_category":{"type":"Geography","id":"3"}, "previous_questions":[13]}'``` 
+
+
+```
 {
   "question": {
     "answer": "Agra", 
@@ -319,3 +381,7 @@ Sample curl http://127.0.0.1:5000/quizzes -X POST -H "Content-Type: application/
   }, 
   "success": true
 }
+```
+
+
+
